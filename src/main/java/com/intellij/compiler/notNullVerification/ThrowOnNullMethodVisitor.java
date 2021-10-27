@@ -15,6 +15,8 @@
  */
 package com.intellij.compiler.notNullVerification;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
@@ -24,9 +26,6 @@ import org.objectweb.asm.Type;
 import se.eris.asm.AsmUtils;
 import se.eris.asm.ClassInfo;
 import se.eris.lang.LangUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
 
@@ -97,7 +96,8 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
             mv.visitInsn(Opcodes.DUP);
             final Label skipLabel = new Label();
             mv.visitJumpInsn(Opcodes.IFNONNULL, skipLabel);
-            generateThrow(ISE_CLASS_NAME, "NotNull method " + classInfo.getName() + "." + methodName + " must not return null", skipLabel);
+            //generateThrow(ISE_CLASS_NAME, "NotNull method " + classInfo.getName() + "." + methodName + " must not return null", skipLabel);
+            generateLog(skipLabel);
         }
         mv.visitInsn(opcode);
     }
@@ -134,7 +134,8 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
                 final Label end = new Label();
                 mv.visitJumpInsn(Opcodes.IFNONNULL, end);
 
-                generateThrow(IAE_CLASS_NAME, getThrowMessage(notNullParam), end);
+                // generateThrow(IAE_CLASS_NAME, getThrowMessage(notNullParam), end);
+                generateLog(end);
             }
         }
         mv.visitCode();
@@ -176,6 +177,27 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
                 this.argumentTypes[0].getSort() == Type.OBJECT;
     }
 
+    private void generateLog(@NotNull final Label end) {
+        final String stringParam = "(" + LangUtils.convertToJavaClassName(String.class.getName()) + ")";
+        final String getLoggerReturnType = "Lorg/slf4j/Logger;";
+        mv.visitLdcInsn("NonnullInstrumentationLogger");
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                "org/slf4j/LoggerFactory",
+                "getLogger",
+                stringParam + getLoggerReturnType,
+                false);
+        mv.visitLdcInsn("Nonnull check FAILED");
+        final String errorMethodReturnType = "V";
+        mv.visitMethodInsn(Opcodes.INVOKEINTERFACE,
+                "org/slf4j/Logger",
+                "error",
+                stringParam + errorMethodReturnType,
+                true);
+        mv.visitLabel(end);
+
+        setInstrumented();
+    }
+
     private void generateThrow(@NotNull final String exceptionClass, @NotNull final String description, @NotNull final Label end) {
         final String exceptionParamClass = "(" + LangUtils.convertToJavaClassName(String.class.getName()) + ")V";
         mv.visitTypeInsn(Opcodes.NEW, exceptionClass);
@@ -213,7 +235,7 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
 
     /**
      * Returns the reason for the parameter to be instrumented as non-null one.
-     * 
+     *
      * @return the reason that the parameter was instrumented as non-null.
      */
     @NotNull
