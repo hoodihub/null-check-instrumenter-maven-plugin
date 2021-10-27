@@ -15,6 +15,15 @@
  */
 package com.intellij;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -26,23 +35,14 @@ import se.eris.notnull.Configuration;
 import se.eris.notnull.ExcludeConfiguration;
 import se.eris.notnull.instrumentation.ClassMatcher;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * @author Vladislav.Rassokhin
  * @author Olle Sundblad
+ * @author hoodihub@github
  */
 abstract class AbstractNotNullInstrumenterTask extends AbstractMojo {
 
-    @Parameter( defaultValue = "${project}", readonly = true )
+    @Parameter(defaultValue = "${project}", readonly = true)
     MavenProject project;
 
     @Parameter
@@ -55,7 +55,14 @@ abstract class AbstractNotNullInstrumenterTask extends AbstractMojo {
     private Set<String> excludes;
 
     @Parameter
+    private boolean logErrorInsteadOfThrowingException;
+
+    @Parameter
+    private String loggerName;
+
+    @Parameter
     private boolean implicit;
+
     @Parameter(property = "se.eris.notnull.instrument", defaultValue = "true")
     private boolean instrument;
 
@@ -85,11 +92,9 @@ abstract class AbstractNotNullInstrumenterTask extends AbstractMojo {
             for (final String cp : classpathElements) {
                 urls.add(new File(cp).toURI().toURL());
             }
-        }
-        catch (final MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             throw new MojoExecutionException("Cannot convert classpath element into URL", e);
-        }
-        catch (final RuntimeException e) {
+        } catch (final RuntimeException e) {
             //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
             throw new MojoExecutionException(e.getMessage(), e.getCause());
         }
@@ -97,7 +102,10 @@ abstract class AbstractNotNullInstrumenterTask extends AbstractMojo {
     }
 
     private Configuration getConfiguration() {
-        return new Configuration(implicit,
+        return new Configuration(
+                logErrorInsteadOfThrowingException,
+                loggerName,
+                implicit,
                 getAnnotationConfiguration(nullToEmpty(notNull), nullToEmpty(nullable)),
                 getExcludeConfiguration(nullToEmpty(excludes)));
     }

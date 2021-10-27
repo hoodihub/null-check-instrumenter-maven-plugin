@@ -15,25 +15,33 @@
  */
 package se.eris.notnull;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 
 public class Configuration {
 
+    private final boolean logErrorInsteadOfThrowingException;
+    private final String loggerName;
+
     private final boolean implicit;
+
     @NotNull
     private final AnnotationConfiguration annotationConfiguration;
+
     @NotNull
     private final ExcludeConfiguration excludeConfiguration;
 
     @SuppressWarnings("BooleanParameter")
     public Configuration(
+            final boolean logErrorInsteadOfThrowingException,
+            final String loggerName,
             final boolean implicit,
             @NotNull final AnnotationConfiguration annotationConfiguration,
             @NotNull final ExcludeConfiguration excludeConfiguration) {
+        this.logErrorInsteadOfThrowingException = logErrorInsteadOfThrowingException;
+        this.loggerName = loggerName;
         this.implicit = implicit;
         if (annotationConfiguration.isAnnotationsConfigured()) {
             this.annotationConfiguration = annotationConfiguration;
@@ -57,6 +65,14 @@ public class Configuration {
                 org.jetbrains.annotations.Nullable.class.getName(),
                 se.eris.notnull.Nullable.class.getName())
         );
+    }
+
+    public boolean isLogErrorInsteadOfThrowingException() {
+        return logErrorInsteadOfThrowingException;
+    }
+
+    public String getLoggerName() {
+        return loggerName;
     }
 
     public boolean isImplicit() {

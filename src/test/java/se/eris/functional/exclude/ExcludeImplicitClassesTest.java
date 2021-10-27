@@ -15,6 +15,14 @@
  */
 package se.eris.functional.exclude;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import se.eris.notnull.AnnotationConfiguration;
 import se.eris.notnull.Configuration;
@@ -25,16 +33,6 @@ import se.eris.util.TestClass;
 import se.eris.util.TestCompiler;
 import se.eris.util.TestSupportedJavaVersions;
 import se.eris.util.version.VersionCompiler;
-
-import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests to verify that package exclusion works.
@@ -49,7 +47,10 @@ class ExcludeImplicitClassesTest {
 
     @BeforeAll
     static void beforeClass() {
-        final Configuration configuration = new Configuration(true,
+        final Configuration configuration = new Configuration(
+                false,
+                null,
+                true,
                 new AnnotationConfiguration(),
                 new ExcludeConfiguration(Collections.singleton(ClassMatcher.namePattern("se.eris.exclude.*"))));
         compilers.putAll(VersionCompiler.compile(DESTINATION_BASEDIR, configuration, testClass.getJavaFile(SRC_DIR)));

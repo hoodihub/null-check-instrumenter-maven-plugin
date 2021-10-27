@@ -15,6 +15,10 @@
  */
 package com.intellij.compiler.notNullVerification;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -27,11 +31,6 @@ import se.eris.lang.LangUtils;
 import se.eris.notnull.Configuration;
 import se.eris.notnull.ImplicitNotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author ven
  * @author Vladislav.Rassokhin
@@ -41,7 +40,7 @@ public class NotNullInstrumenterClassVisitor extends ClassVisitor {
 
     private final Set<String> notnull;
     private final Set<String> nullable;
-    private final Collection<ThrowOnNullMethodVisitor> methodVisitors = new ArrayList<>();
+    private final Collection<OnNullMethodVisitor> methodVisitors = new ArrayList<>();
 
     private Boolean isAnonymous;
     private boolean classAnnotatedImplicit = false;
@@ -88,11 +87,31 @@ public class NotNullInstrumenterClassVisitor extends ClassVisitor {
         final Type[] argumentTypes = Type.getArgumentTypes(desc); // todo functions?
         final Type returnType = Type.getReturnType(desc);
         final MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
-        final ThrowOnNullMethodVisitor visitor;
+        final OnNullMethodVisitor visitor;
         if (classAnnotatedImplicit || configuration.isImplicitInstrumentation(toClassName(classInfo.getName()))) {
-            visitor = new ImplicitThrowOnNullMethodVisitor(methodVisitor, argumentTypes, returnType, access, name, classInfo, nullable, isAnonymous);
+            visitor = new ImplicitOnNullMethodVisitor(
+                    configuration.isLogErrorInsteadOfThrowingException(),
+                    configuration.getLoggerName(),
+                    methodVisitor,
+                    argumentTypes,
+                    returnType,
+                    access,
+                    name,
+                    classInfo,
+                    nullable,
+                    isAnonymous);
         } else {
-            visitor = new AnnotationThrowOnNullMethodVisitor(methodVisitor, argumentTypes, returnType, access, name, classInfo, notnull, isAnonymous);
+            visitor = new AnnotationOnNullMethodVisitor(
+                    configuration.isLogErrorInsteadOfThrowingException(),
+                    configuration.getLoggerName(),
+                    methodVisitor,
+                    argumentTypes,
+                    returnType,
+                    access,
+                    name,
+                    classInfo,
+                    notnull,
+                    isAnonymous);
         }
         methodVisitors.add(visitor);
         return visitor;
@@ -112,7 +131,7 @@ public class NotNullInstrumenterClassVisitor extends ClassVisitor {
     }
 
     public boolean hasInstrumented() {
-        for (final ThrowOnNullMethodVisitor methodVisitor : methodVisitors) {
+        for (final OnNullMethodVisitor methodVisitor : methodVisitors) {
             if (methodVisitor.hasInstrumented()) {
                 return true;
             }

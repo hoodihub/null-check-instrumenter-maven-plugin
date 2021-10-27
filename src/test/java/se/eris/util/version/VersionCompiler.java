@@ -1,6 +1,14 @@
 package se.eris.util.version;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.intellij.NotNullInstrumenter;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import se.eris.maven.NopLogWrapper;
 import se.eris.notnull.AnnotationConfiguration;
@@ -10,22 +18,15 @@ import se.eris.util.TestCompiler;
 import se.eris.util.TestCompilerOptions;
 import se.eris.util.TestSupportedJavaVersions;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class VersionCompiler {
 
     private static final String[] SUPPORTED_VERSIONS = TestSupportedJavaVersions.SupportedVersions.getSupportedVersions();
 
     public static Map<String, TestCompiler> compile(final Path destinationBasedir, final File... javaFiles) {
-        final Configuration configuration = new Configuration(false,
+        final Configuration configuration = new Configuration(
+                false,
+                null,
+                false,
                 new AnnotationConfiguration(notnull(), nullable()),
                 new ExcludeConfiguration(Collections.emptySet()));
         return compile(destinationBasedir, configuration, javaFiles);

@@ -27,12 +27,15 @@ import se.eris.asm.AsmUtils;
 import se.eris.asm.ClassInfo;
 import se.eris.lang.LangUtils;
 
-public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
+public abstract class OnNullMethodVisitor extends MethodVisitor {
 
     static final String LJAVA_LANG_SYNTHETIC_ANNO = "Ljava/lang/Synthetic;";
     private static final String IAE_CLASS_NAME = "java/lang/IllegalArgumentException";
     private static final String ISE_CLASS_NAME = "java/lang/IllegalStateException";
     private static final String CONSTRUCTOR_NAME = "<init>";
+
+    private final boolean logErrorInsteadOfThrowingException;
+    private final String loggerName;
 
     final Type[] argumentTypes;
     private final int methodAccess;
@@ -49,8 +52,20 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
     Label startGeneratedCodeLabel;
     private List<String> parameterNames = null;
 
-    ThrowOnNullMethodVisitor(@Nullable final MethodVisitor mv, final Type[] argumentTypes, final Type returnType, final int methodAccess, final String methodName, final ClassInfo classInfo, final boolean isReturnNotNull, @Nullable final Boolean isAnonymousClass) {
+    OnNullMethodVisitor(
+            final boolean logErrorInsteadOfThrowingException,
+            @Nullable final String loggerName,
+            @Nullable final MethodVisitor mv,
+            final Type[] argumentTypes,
+            final Type returnType,
+            final int methodAccess,
+            final String methodName,
+            final ClassInfo classInfo,
+            final boolean isReturnNotNull,
+            @Nullable final Boolean isAnonymousClass) {
         super(AsmUtils.ASM_OPCODES_VERSION, mv);
+        this.logErrorInsteadOfThrowingException = logErrorInsteadOfThrowingException;
+        this.loggerName = loggerName;
         this.argumentTypes = argumentTypes;
         this.methodAccess = methodAccess;
         this.returnType = returnType;
@@ -96,8 +111,14 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
             mv.visitInsn(Opcodes.DUP);
             final Label skipLabel = new Label();
             mv.visitJumpInsn(Opcodes.IFNONNULL, skipLabel);
-            //generateThrow(ISE_CLASS_NAME, "NotNull method " + classInfo.getName() + "." + methodName + " must not return null", skipLabel);
-            generateLog(skipLabel);
+            final String message = "NotNull method " + classInfo.getName() + "." + methodName + " must not return null";
+            if (logErrorInsteadOfThrowingException) {
+                generateLogging(message);
+            } else {
+                generateThrow(ISE_CLASS_NAME, message);
+            }
+            mv.visitLabel(skipLabel);
+            setInstrumented();
         }
         mv.visitInsn(opcode);
     }
@@ -133,9 +154,14 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
 
                 final Label end = new Label();
                 mv.visitJumpInsn(Opcodes.IFNONNULL, end);
-
-                // generateThrow(IAE_CLASS_NAME, getThrowMessage(notNullParam), end);
-                generateLog(end);
+                final String message = getNullArgumentMessage(notNullParam);
+                if (logErrorInsteadOfThrowingException) {
+                    generateLogging(message);
+                } else {
+                    generateThrow(IAE_CLASS_NAME, message);
+                }
+                mv.visitLabel(end);
+                setInstrumented();
             }
         }
         mv.visitCode();
@@ -177,37 +203,31 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
                 this.argumentTypes[0].getSort() == Type.OBJECT;
     }
 
-    private void generateLog(@NotNull final Label end) {
+    private void generateLogging(final String message) {
         final String stringParam = "(" + LangUtils.convertToJavaClassName(String.class.getName()) + ")";
         final String getLoggerReturnType = "Lorg/slf4j/Logger;";
-        mv.visitLdcInsn("NonnullInstrumentationLogger");
+        mv.visitLdcInsn(loggerName);
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                 "org/slf4j/LoggerFactory",
                 "getLogger",
                 stringParam + getLoggerReturnType,
                 false);
-        mv.visitLdcInsn("Nonnull check FAILED");
+        mv.visitLdcInsn(message);
         final String errorMethodReturnType = "V";
         mv.visitMethodInsn(Opcodes.INVOKEINTERFACE,
                 "org/slf4j/Logger",
                 "error",
                 stringParam + errorMethodReturnType,
                 true);
-        mv.visitLabel(end);
-
-        setInstrumented();
     }
 
-    private void generateThrow(@NotNull final String exceptionClass, @NotNull final String description, @NotNull final Label end) {
+    private void generateThrow(@NotNull final String exceptionClass, @NotNull final String description) {
         final String exceptionParamClass = "(" + LangUtils.convertToJavaClassName(String.class.getName()) + ")V";
         mv.visitTypeInsn(Opcodes.NEW, exceptionClass);
         mv.visitInsn(Opcodes.DUP);
         mv.visitLdcInsn(description);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, exceptionClass, CONSTRUCTOR_NAME, exceptionParamClass, false);
         mv.visitInsn(Opcodes.ATHROW);
-        mv.visitLabel(end);
-
-        setInstrumented();
     }
 
     boolean isReturnReferenceType() {
@@ -228,7 +248,7 @@ public abstract class ThrowOnNullMethodVisitor extends MethodVisitor {
     }
 
     @NotNull
-    private String getThrowMessage(final int parameterNumber) {
+    private String getNullArgumentMessage(final int parameterNumber) {
         final String pname = parameterNames == null || parameterNames.size() <= (parameterNumber + syntheticCount) ? "" : String.format(" (parameter '%s')", parameterNames.get(parameterNumber + syntheticCount));
         return String.format("%s argument %d%s of %s.%s must not be null", notNullCause(), parameterNumber, pname, classInfo.getName(), methodName);
     }

@@ -15,6 +15,17 @@
  */
 package se.eris.functional.nested;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.objectweb.asm.ClassReader;
@@ -31,19 +42,6 @@ import se.eris.util.TestCompiler;
 import se.eris.util.TestSupportedJavaVersions;
 import se.eris.util.version.VersionCompiler;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class NestedAnnotatedInstrumenterTest {
 
     private static final File SRC_DIR = new File("src/test/data");
@@ -54,7 +52,10 @@ class NestedAnnotatedInstrumenterTest {
 
     @BeforeAll
     static void beforeClass() {
-        final Configuration configuration = new Configuration(false,
+        final Configuration configuration = new Configuration(
+                false,
+                null,
+                false,
                 new AnnotationConfiguration(),
                 new ExcludeConfiguration(Collections.emptySet()));
         compilers.putAll(VersionCompiler.compile(DESTINATION_BASEDIR, configuration, testClass.getJavaFile(SRC_DIR)));

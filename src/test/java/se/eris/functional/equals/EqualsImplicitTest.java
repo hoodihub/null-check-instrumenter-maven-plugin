@@ -15,6 +15,13 @@
  */
 package se.eris.functional.equals;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import se.eris.notnull.AnnotationConfiguration;
@@ -24,14 +31,6 @@ import se.eris.util.TestClass;
 import se.eris.util.TestCompiler;
 import se.eris.util.TestSupportedJavaVersions;
 import se.eris.util.version.VersionCompiler;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 class EqualsImplicitTest {
 
@@ -43,7 +42,10 @@ class EqualsImplicitTest {
 
     @BeforeAll
     static void beforeClass() {
-        final Configuration configuration = new Configuration(true, new AnnotationConfiguration(notNull(), nullable()), new ExcludeConfiguration(Collections.emptySet()));
+        final Configuration configuration = new Configuration(
+                false,
+                null,
+                true, new AnnotationConfiguration(notNull(), nullable()), new ExcludeConfiguration(Collections.emptySet()));
         compilers.putAll(VersionCompiler.compile(DESTINATION_BASEDIR, configuration, testClass.getJavaFile(SRC_DIR)));
     }
 

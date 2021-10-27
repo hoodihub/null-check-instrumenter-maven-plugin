@@ -15,15 +15,13 @@
  */
 package se.eris.notnull;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class ConfigurationTest {
 
@@ -65,7 +63,10 @@ class ConfigurationTest {
     }
 
     private Configuration getDefaultNotNullConfiguration(final boolean implicit) {
-        return new Configuration(implicit, new AnnotationConfiguration(Collections.emptySet(), Collections.emptySet()), new ExcludeConfiguration(Collections.emptySet()));
+        return new Configuration(
+                false,
+                null,
+                implicit, new AnnotationConfiguration(Collections.emptySet(), Collections.emptySet()), new ExcludeConfiguration(Collections.emptySet()));
     }
 
 }

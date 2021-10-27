@@ -15,6 +15,7 @@
  */
 package com.intellij.compiler.notNullVerification;
 
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
@@ -23,14 +24,30 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import se.eris.asm.ClassInfo;
 
-import java.util.Set;
-
-class AnnotationThrowOnNullMethodVisitor extends ThrowOnNullMethodVisitor {
+class AnnotationOnNullMethodVisitor extends OnNullMethodVisitor {
 
     private final Set<String> notNullAnnotations;
 
-    AnnotationThrowOnNullMethodVisitor(@Nullable final MethodVisitor methodVisitor, @NotNull final Type[] argumentTypes, @NotNull final Type returnType, final int access, @NotNull final String methodName, @NotNull final ClassInfo classInfo, @NotNull final Set<String> notNullAnnotations, final Boolean isAnonymous) {
-        super(methodVisitor, argumentTypes, returnType, access, methodName, classInfo, false, isAnonymous);
+    AnnotationOnNullMethodVisitor(
+            final boolean logErrorInsteadOfThrowingException,
+            @Nullable final String loggerName,
+            @Nullable final MethodVisitor methodVisitor,
+            @NotNull final Type[] argumentTypes,
+            @NotNull final Type returnType, final int access,
+            @NotNull final String methodName,
+            @NotNull final ClassInfo classInfo,
+            @NotNull final Set<String> notNullAnnotations,
+            final Boolean isAnonymous) {
+        super(logErrorInsteadOfThrowingException,
+                loggerName,
+                methodVisitor,
+                argumentTypes,
+                returnType,
+                access,
+                methodName,
+                classInfo,
+                false,
+                isAnonymous);
         this.notNullAnnotations = notNullAnnotations;
     }
 
