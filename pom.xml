@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <name>Null-Check Instrumenter</name>
-  <groupId>net.hoodihub</groupId>
+  <groupId>io.github.hoodihub</groupId>
   <artifactId>null-check-instrumenter-maven-plugin</artifactId>
   <version>1.0.0</version>
   <packaging>maven-plugin</packaging>
