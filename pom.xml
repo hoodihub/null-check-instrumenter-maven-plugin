@@ -5,7 +5,7 @@
   <name>Null-Check Instrumenter</name>
   <groupId>io.github.hoodihub</groupId>
   <artifactId>null-check-instrumenter-maven-plugin</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <description>
     Processes non-null annotations and injects code to throw an exception (or log an error), when the non-null
