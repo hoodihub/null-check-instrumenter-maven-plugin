@@ -34,6 +34,8 @@ public abstract class OnNullMethodVisitor extends MethodVisitor {
     private static final String ISE_CLASS_NAME = "java/lang/IllegalStateException";
     private static final String CONSTRUCTOR_NAME = "<init>";
 
+    private final boolean useRequireNonNull;
+
     private final boolean logErrorInsteadOfThrowingException;
     private final String loggerName;
 
@@ -53,6 +55,7 @@ public abstract class OnNullMethodVisitor extends MethodVisitor {
     private List<String> parameterNames = null;
 
     OnNullMethodVisitor(
+            final boolean useRequireNonNull,
             final boolean logErrorInsteadOfThrowingException,
             @Nullable final String loggerName,
             @Nullable final MethodVisitor mv,
@@ -64,6 +67,7 @@ public abstract class OnNullMethodVisitor extends MethodVisitor {
             final boolean isReturnNotNull,
             @Nullable final Boolean isAnonymousClass) {
         super(AsmUtils.ASM_OPCODES_VERSION, mv);
+        this.useRequireNonNull = useRequireNonNull;
         this.logErrorInsteadOfThrowingException = logErrorInsteadOfThrowingException;
         this.loggerName = loggerName;
         this.argumentTypes = argumentTypes;
@@ -108,16 +112,31 @@ public abstract class OnNullMethodVisitor extends MethodVisitor {
     @Override
     public void visitInsn(final int opcode) {
         if (shouldInclude() && opcode == Opcodes.ARETURN && isReturnNotNull && !isReturnVoidReferenceType()) {
-            mv.visitInsn(Opcodes.DUP);
-            final Label skipLabel = new Label();
-            mv.visitJumpInsn(Opcodes.IFNONNULL, skipLabel);
-            final String message = "NotNull method " + classInfo.getName() + "." + methodName + " must not return null";
-            if (logErrorInsteadOfThrowingException) {
-                generateLogging(message);
+            if (useRequireNonNull) {
+                final String objectType = LangUtils.convertToJavaClassName(Object.class.getName());
+                final String requireNonNullParamType = "(" + objectType + ")";
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        "java/util/Objects",
+                        "requireNonNull",
+                        (requireNonNullParamType + objectType),
+                        false);
+                final String methodReturnType = returnType.getInternalName();
+                if (!methodReturnType.equals("java/lang/Object")) {
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, methodReturnType);
+                }
             } else {
-                generateThrow(ISE_CLASS_NAME, message);
+                mv.visitInsn(Opcodes.DUP);
+                final Label skipLabel = new Label();
+                mv.visitJumpInsn(Opcodes.IFNONNULL, skipLabel);
+                final String message = "NotNull method " + classInfo.getName() + "." + methodName + " must not return null";
+                if (logErrorInsteadOfThrowingException) {
+                    generateLogging(message);
+                } else {
+                    generateThrow(ISE_CLASS_NAME, message);
+                }
+                mv.visitLabel(skipLabel);
+                setInstrumented();
             }
-            mv.visitLabel(skipLabel);
             setInstrumented();
         }
         mv.visitInsn(opcode);
@@ -152,15 +171,25 @@ public abstract class OnNullMethodVisitor extends MethodVisitor {
                 }
                 mv.visitVarInsn(Opcodes.ALOAD, var);
 
-                final Label end = new Label();
-                mv.visitJumpInsn(Opcodes.IFNONNULL, end);
-                final String message = getNullArgumentMessage(notNullParam);
-                if (logErrorInsteadOfThrowingException) {
-                    generateLogging(message);
+                if (useRequireNonNull) {
+                    final String objectType = LangUtils.convertToJavaClassName(Object.class.getName());
+                    final String requireNonNullParamType = "(" + objectType + ")";
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                            "java/util/Objects",
+                            "requireNonNull",
+                            (requireNonNullParamType + objectType),
+                            false);
                 } else {
-                    generateThrow(IAE_CLASS_NAME, message);
+                    final Label end = new Label();
+                    mv.visitJumpInsn(Opcodes.IFNONNULL, end);
+                    final String message = getNullArgumentMessage(notNullParam);
+                    if (logErrorInsteadOfThrowingException) {
+                        generateLogging(message);
+                    } else {
+                        generateThrow(IAE_CLASS_NAME, message);
+                    }
+                    mv.visitLabel(end);
                 }
-                mv.visitLabel(end);
                 setInstrumented();
             }
         }

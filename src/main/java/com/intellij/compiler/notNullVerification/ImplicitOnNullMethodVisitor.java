@@ -30,6 +30,7 @@ class ImplicitOnNullMethodVisitor extends OnNullMethodVisitor {
     private final Set<String> nullableAnnotations;
 
     ImplicitOnNullMethodVisitor(
+            final boolean useRequireNonNull,
             final boolean logErrorInsteadOfThrowingException,
             @Nullable final String loggerName,
             @Nullable final MethodVisitor methodVisitor,
@@ -40,7 +41,8 @@ class ImplicitOnNullMethodVisitor extends OnNullMethodVisitor {
             @NotNull final ClassInfo classInfo,
             @NotNull final Set<String> nullableAnnotations,
             @Nullable final Boolean isAnonymousClass) {
-        super(logErrorInsteadOfThrowingException,
+        super(useRequireNonNull,
+                logErrorInsteadOfThrowingException,
                 loggerName,
                 methodVisitor,
                 argumentTypes,

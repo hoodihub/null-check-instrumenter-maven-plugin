@@ -22,6 +22,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class Configuration {
 
+    private final boolean useRequireNonNull;
+
     private final boolean logErrorInsteadOfThrowingException;
     private final String loggerName;
 
@@ -35,12 +37,14 @@ public class Configuration {
 
     @SuppressWarnings("BooleanParameter")
     public Configuration(
+            final boolean useRequireNonNull,
             final boolean logErrorInsteadOfThrowingException,
             final String loggerName,
             final boolean implicit,
             @NotNull final AnnotationConfiguration annotationConfiguration,
             @NotNull final ExcludeConfiguration excludeConfiguration) {
         this.logErrorInsteadOfThrowingException = logErrorInsteadOfThrowingException;
+        this.useRequireNonNull = useRequireNonNull;
         this.loggerName = loggerName;
         this.implicit = implicit;
         if (annotationConfiguration.isAnnotationsConfigured()) {
@@ -69,6 +73,10 @@ public class Configuration {
 
     public boolean isLogErrorInsteadOfThrowingException() {
         return logErrorInsteadOfThrowingException;
+    }
+
+    public boolean isUseRequireNonNull() {
+        return useRequireNonNull;
     }
 
     public String getLoggerName() {

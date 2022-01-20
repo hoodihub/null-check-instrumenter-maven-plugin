@@ -54,6 +54,7 @@ class NestedAnnotatedInstrumenterTest {
     static void beforeClass() {
         final Configuration configuration = new Configuration(
                 false,
+                false,
                 null,
                 false,
                 new AnnotationConfiguration(),

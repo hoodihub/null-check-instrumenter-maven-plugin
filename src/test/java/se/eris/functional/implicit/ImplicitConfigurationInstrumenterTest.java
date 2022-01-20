@@ -48,6 +48,7 @@ class ImplicitConfigurationInstrumenterTest {
     static void beforeClass() {
         final Configuration configuration = new Configuration(
                 false,
+                false,
                 null,
                 true, new AnnotationConfiguration(), new ExcludeConfiguration(Collections.emptySet()));
         compilers.putAll(VersionCompiler.compile(DESTINATION_BASEDIR, configuration, testClass.getJavaFile(SRC_DIR)));

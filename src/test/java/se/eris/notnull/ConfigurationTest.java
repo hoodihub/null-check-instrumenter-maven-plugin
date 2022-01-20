@@ -65,6 +65,7 @@ class ConfigurationTest {
     private Configuration getDefaultNotNullConfiguration(final boolean implicit) {
         return new Configuration(
                 false,
+                false,
                 null,
                 implicit, new AnnotationConfiguration(Collections.emptySet(), Collections.emptySet()), new ExcludeConfiguration(Collections.emptySet()));
     }

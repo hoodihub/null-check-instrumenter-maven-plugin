@@ -43,6 +43,7 @@ class EnumImplicitTest {
     static void beforeClass() {
         final Configuration configuration = new Configuration(
                 false,
+                false,
                 null,
                 true,
                 new AnnotationConfiguration(),

@@ -18,6 +18,14 @@ package com.intellij;
 import com.intellij.compiler.instrumentation.InstrumentationClassFinder;
 import com.intellij.compiler.instrumentation.InstrumenterClassWriter;
 import com.intellij.compiler.notNullVerification.NotNullInstrumenterClassVisitor;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -28,19 +36,22 @@ import se.eris.notnull.Configuration;
 import se.eris.notnull.InstrumentExecutionException;
 import se.eris.util.ClassFileUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
-
 /**
  * @author Olle Sundblad
  */
 public class NotNullInstrumenter {
+
+    /* Use this to generate the trace for a class */
+//    public static void main(String[] args) throws Exception {
+//        File file = new File("C:\\finapi\\utility\\target\\classes\\io\\finapi\\access\\utility\\dto\\EscapedAccountInfo.class");
+//        try (final FileInputStream inputStream = new FileInputStream(file)) {
+//            final ClassReader classReader = new ClassReader(inputStream);
+//            ClassVisitor traceClassVisitor = new TraceClassVisitor(new PrintWriter(
+//                    new FileOutputStream(file.getName() + "-trace")
+//            ));
+//            classReader.accept(traceClassVisitor, NO_FLAGS);
+//        }
+//    }
 
     private static final int NO_FLAGS = 0;
 

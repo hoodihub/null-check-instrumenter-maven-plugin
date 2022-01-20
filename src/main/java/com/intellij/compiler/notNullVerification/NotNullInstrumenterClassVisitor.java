@@ -90,6 +90,7 @@ public class NotNullInstrumenterClassVisitor extends ClassVisitor {
         final OnNullMethodVisitor visitor;
         if (classAnnotatedImplicit || configuration.isImplicitInstrumentation(toClassName(classInfo.getName()))) {
             visitor = new ImplicitOnNullMethodVisitor(
+                    configuration.isUseRequireNonNull(),
                     configuration.isLogErrorInsteadOfThrowingException(),
                     configuration.getLoggerName(),
                     methodVisitor,
@@ -102,6 +103,7 @@ public class NotNullInstrumenterClassVisitor extends ClassVisitor {
                     isAnonymous);
         } else {
             visitor = new AnnotationOnNullMethodVisitor(
+                    configuration.isUseRequireNonNull(),
                     configuration.isLogErrorInsteadOfThrowingException(),
                     configuration.getLoggerName(),
                     methodVisitor,

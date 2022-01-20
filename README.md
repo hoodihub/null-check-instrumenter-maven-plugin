@@ -122,6 +122,14 @@ null if b is null).
 
 **Note** that when using implicit you need to specify the Nullable annotations (not the NotNull).
 
+## Use Objects.requireNonNull instead of explicitly throwing exceptions
+
+With the configuration parameter 'useRequireNonNull' = true, the plugin will instrument Objects.requireNonNull calls,
+instead of explicitly throwing an exception.
+
+Note: This setting has a higher priority than logErrorInsteadOfThrowingException. If both settings are enabled, then
+useRequireNonNull will win.
+
 ## Log errors instead of throwing exceptions
 
 If you want the instrumented code to just log an error message instead of throwing an exception, you can use a

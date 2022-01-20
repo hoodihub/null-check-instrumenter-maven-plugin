@@ -29,6 +29,7 @@ class AnnotationOnNullMethodVisitor extends OnNullMethodVisitor {
     private final Set<String> notNullAnnotations;
 
     AnnotationOnNullMethodVisitor(
+            final boolean useRequireNonNull,
             final boolean logErrorInsteadOfThrowingException,
             @Nullable final String loggerName,
             @Nullable final MethodVisitor methodVisitor,
@@ -38,7 +39,8 @@ class AnnotationOnNullMethodVisitor extends OnNullMethodVisitor {
             @NotNull final ClassInfo classInfo,
             @NotNull final Set<String> notNullAnnotations,
             final Boolean isAnonymous) {
-        super(logErrorInsteadOfThrowingException,
+        super(useRequireNonNull,
+                logErrorInsteadOfThrowingException,
                 loggerName,
                 methodVisitor,
                 argumentTypes,

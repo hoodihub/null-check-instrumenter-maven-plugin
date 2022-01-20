@@ -55,6 +55,9 @@ abstract class AbstractNotNullInstrumenterTask extends AbstractMojo {
     private Set<String> excludes;
 
     @Parameter
+    private boolean useRequireNonNull;
+
+    @Parameter
     private boolean logErrorInsteadOfThrowingException;
 
     @Parameter
@@ -103,6 +106,7 @@ abstract class AbstractNotNullInstrumenterTask extends AbstractMojo {
 
     private Configuration getConfiguration() {
         return new Configuration(
+                useRequireNonNull,
                 logErrorInsteadOfThrowingException,
                 loggerName,
                 implicit,
