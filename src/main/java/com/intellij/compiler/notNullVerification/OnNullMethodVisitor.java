@@ -171,6 +171,8 @@ public abstract class OnNullMethodVisitor extends MethodVisitor {
                 }
                 mv.visitVarInsn(Opcodes.ALOAD, var);
 
+                /*
+                TODO implement
                 if (useRequireNonNull) {
                     final String objectType = LangUtils.convertToJavaClassName(Object.class.getName());
                     final String requireNonNullParamType = "(" + objectType + ")";
@@ -179,17 +181,17 @@ public abstract class OnNullMethodVisitor extends MethodVisitor {
                             "requireNonNull",
                             (requireNonNullParamType + objectType),
                             false);
+                }*/
+
+                final Label end = new Label();
+                mv.visitJumpInsn(Opcodes.IFNONNULL, end);
+                final String message = getNullArgumentMessage(notNullParam);
+                if (logErrorInsteadOfThrowingException) {
+                    generateLogging(message);
                 } else {
-                    final Label end = new Label();
-                    mv.visitJumpInsn(Opcodes.IFNONNULL, end);
-                    final String message = getNullArgumentMessage(notNullParam);
-                    if (logErrorInsteadOfThrowingException) {
-                        generateLogging(message);
-                    } else {
-                        generateThrow(IAE_CLASS_NAME, message);
-                    }
-                    mv.visitLabel(end);
+                    generateThrow(IAE_CLASS_NAME, message);
                 }
+                mv.visitLabel(end);
                 setInstrumented();
             }
         }

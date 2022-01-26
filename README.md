@@ -122,13 +122,16 @@ null if b is null).
 
 **Note** that when using implicit you need to specify the Nullable annotations (not the NotNull).
 
-## Use Objects.requireNonNull instead of explicitly throwing exceptions
+## Use Objects.requireNonNull for return statements
 
 With the configuration parameter 'useRequireNonNull' = true, the plugin will instrument Objects.requireNonNull calls,
 instead of explicitly throwing an exception.
 
-Note: This setting has a higher priority than logErrorInsteadOfThrowingException. If both settings are enabled, then
-useRequireNonNull will win.
+Note:
+
+- This applies only to method return statements, not to method parameters
+- This setting has a higher priority than logErrorInsteadOfThrowingException. If both settings are enabled, then
+  useRequireNonNull will win.
 
 ## Log errors instead of throwing exceptions
 
