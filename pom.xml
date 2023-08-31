@@ -5,7 +5,7 @@
   <name>Null-Check Instrumenter</name>
   <groupId>io.github.hoodihub</groupId>
   <artifactId>null-check-instrumenter-maven-plugin</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <packaging>maven-plugin</packaging>
   <description>
     Processes non-null annotations and injects code to throw an exception (or log an error), when the non-null
@@ -132,11 +132,6 @@
       <artifactId>junit-jupiter-params</artifactId>
       <version>${junit-jupiter.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-util</artifactId>
-      <version>${asm.version}</version>
     </dependency>
   </dependencies>
 
