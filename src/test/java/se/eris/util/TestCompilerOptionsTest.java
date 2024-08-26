@@ -1,13 +1,11 @@
 package se.eris.util;
 
-import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.File;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
 
 class TestCompilerOptionsTest {
 
@@ -27,12 +25,16 @@ class TestCompilerOptionsTest {
         assertTrue(TestCompilerOptions.from(PATH, "15").targetHasParametersSupport());
         assertTrue(TestCompilerOptions.from(PATH, "16").targetHasParametersSupport());
         assertTrue(TestCompilerOptions.from(PATH, "17").targetHasParametersSupport());
+        assertTrue(TestCompilerOptions.from(PATH, "18").targetHasParametersSupport());
+        assertTrue(TestCompilerOptions.from(PATH, "19").targetHasParametersSupport());
+        assertTrue(TestCompilerOptions.from(PATH, "20").targetHasParametersSupport());
+        assertTrue(TestCompilerOptions.from(PATH, "21").targetHasParametersSupport());
     }
 
     @Test
     void javaVersion_unsupported() {
         assertThrows(IllegalArgumentException.class, () -> TestCompilerOptions.from(PATH, "1.1").targetHasParametersSupport());
-        assertThrows(IllegalArgumentException.class, () -> TestCompilerOptions.from(PATH, "18").targetHasParametersSupport());
+        assertThrows(IllegalArgumentException.class, () -> TestCompilerOptions.from(PATH, "22").targetHasParametersSupport());
     }
 
 }
